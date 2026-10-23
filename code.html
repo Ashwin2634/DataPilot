@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-slate-50" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QC Product Processor • Automation Canvas</title>
+<!-- Tailwind CSS CDN with forms & container queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            canvas: '#f8fafc',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', 'monospace'],
+          },
+          boxShadow: {
+            'card': '0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04)',
+            'node-active': '0 0 0 2px #4f46e5, 0 10px 25px -5px rgba(79, 70, 229, 0.25)',
+          }
+        }
+      }
+    }
+  </script>
+<!-- Phosphor Icons for high-end SaaS aesthetic -->
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<!-- Custom Styles for Graph Canvas & Grid Pattern -->
+<style data-purpose="canvas-decorations">
+    .canvas-grid {
+      background-size: 24px 24px;
+      background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(1.01); }
+    }
+    .active-node-glow {
+      animation: pulse-subtle 3s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans text-slate-800 antialiased overflow-hidden select-none bg-slate-50">
+<!-- BEGIN: TopNavigationBar -->
+<header class="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 z-30 shrink-0 text-white" data-purpose="main-nav">
+<!-- Left: Breadcrumb & Title -->
+<div class="flex items-center space-x-3">
+<div class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-600 text-white shadow-md shadow-indigo-500/20">
+<i class="ph-bold ph-lightning text-lg"></i>
+</div>
+<div class="flex items-center space-x-2 text-sm font-medium">
+<span class="text-slate-400 hover:text-slate-200 cursor-pointer">Pipelines</span>
+<span class="text-slate-600">/</span>
+<span class="font-semibold text-slate-100 flex items-center gap-1.5">
+          QC Product Processor
+          <span class="px-2 py-0.5 text-[11px] font-normal tracking-wide rounded-full bg-slate-800 text-slate-300 border border-slate-700">v2.4</span>
+</span>
+</div>
+<!-- Active Job Tag -->
+<div class="hidden md:flex items-center gap-2 pl-3 border-l border-slate-800">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+</span>
+<span class="text-xs text-slate-300 font-mono">Run: <span class="text-indigo-300 font-medium">88b9e29a-1fce-4854-8761</span></span>
+</div>
+</div>
+<!-- Center: Quick Actions / Pipeline Description -->
+<div class="hidden lg:flex items-center space-x-2 text-xs text-slate-400">
+<span class="px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700/60 font-mono text-[11px]">
+        Upload QC • Specs • ULM • Last Working → Auto clean, validate &amp; scrape
+      </span>
+</div>
+<!-- Right: Controls & User Menu -->
+<div class="flex items-center space-x-3">
+<!-- Live Status Badge -->
+<div class="hidden sm:flex items-center bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 px-2.5 py-1 rounded-md text-xs font-medium gap-1.5">
+<i class="ph-bold ph-check-circle text-emerald-400"></i>
+<span>Playwright Engine Ready</span>
+</div>
+<!-- Run Pipeline Action -->
+<button class="flex items-center space-x-1.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm shadow-indigo-900/50 transition-colors" id="runBtn">
+<i class="ph-bold ph-play text-sm"></i>
+<span>Run Pipeline</span>
+</button>
+<div class="h-5 w-px bg-slate-800 mx-1"></div>
+<!-- Quick user icon -->
+<div class="flex items-center gap-2 pl-1">
+<div class="w-7 h-7 rounded-full bg-slate-700 text-slate-200 border border-slate-600 flex items-center justify-center font-bold text-xs" title="Alexander F.">
+          AF
+        </div>
+</div>
+</div>
+</header>
+<!-- END: TopNavigationBar -->
+<!-- BEGIN: MainWorkspaceLayout -->
+<div class="flex-1 flex overflow-hidden relative">
+<!-- BEGIN: LeftSidebarDrawer -->
+<!-- Replicating the Zapier Run History & File Ingest Sidebar -->
+<aside class="w-80 md:w-96 bg-white border-r border-slate-200 flex flex-col z-20 shadow-sm shrink-0 transition-all duration-200 ease-in-out" id="leftSidebar">
+<!-- Sidebar Header / Tab Navigation -->
+<div class="p-3.5 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
+<div class="flex items-center space-x-1.5">
+<button class="px-3 py-1 text-xs font-semibold rounded-md bg-white text-slate-800 shadow-sm border border-slate-200" id="tabIngest">Data Ingestion</button>
+<button class="px-3 py-1 text-xs font-medium rounded-md text-slate-500 hover:text-slate-800 hover:bg-slate-100" id="tabRuns">Past Runs (3)</button>
+</div>
+<button class="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-200/50" title="Collapse Panel">
+<i class="ph-bold ph-caret-left text-sm"></i>
+</button>
+</div>
+<!-- Panel 1: File Ingestion Station (Active View) -->
+<div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar" id="ingestPanel">
+<div>
+<div class="flex items-center justify-between mb-1">
+<h2 class="text-xs font-bold uppercase tracking-wider text-slate-600">File Ingestion Hub</h2>
+<span class="text-[11px] text-emerald-600 bg-emerald-50 border border-emerald-200 font-medium px-1.5 py-0.5 rounded">4/4 Configured</span>
+</div>
+<p class="text-xs text-slate-500">Provide required feeds for cross-table matching and automated Playwright crawler jobs.</p>
+</div>
+<!-- File Upload Field 1: QC / Crawler File (Selected state from snapshot) -->
+<div class="rounded-xl border-2 border-indigo-200 bg-indigo-50/30 p-3 hover:border-indigo-300 transition-all">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-md bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">1</span>
+<div>
+<label class="text-xs font-bold text-slate-800 block">QC / Crawler File</label>
+<span class="text-[11px] text-slate-500">Master product sheet or raw crawler dumps</span>
+</div>
+</div>
+<span class="bg-indigo-100 text-indigo-700 text-[10px] font-semibold px-2 py-0.5 rounded-full">Primary</span>
+</div>
+<!-- Active File Card -->
+<div class="mt-2.5 flex items-center justify-between bg-white border border-indigo-200 rounded-lg p-2 shadow-xs">
+<div class="flex items-center space-x-2 truncate">
+<i class="ph-fill ph-file-xls text-emerald-600 text-xl"></i>
+<div class="truncate">
+<p class="text-xs font-medium text-slate-800 truncate">Garden_Hoses_EcomQC_20260803.xlsx</p>
+<p class="text-[10px] text-slate-400">1.8 MB • 1,420 rows loaded</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-red-500 p-1 transition-colors" title="Remove file">
+<i class="ph-bold ph-x text-xs"></i>
+</button>
+</div>
+</div>
+<!-- File Upload Field 2: Specs Master File -->
+<div class="rounded-xl border border-slate-200 bg-white p-3 hover:border-slate-300 transition-all">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-md bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">2</span>
+<div>
+<label class="text-xs font-semibold text-slate-800 block">Specs Master File</label>
+<span class="text-[11px] text-slate-400">Attribute dictionary &amp; limits definition</span>
+</div>
+</div>
+</div>
+<div class="mt-2.5">
+<div class="border border-dashed border-slate-300 hover:border-indigo-400 bg-slate-50/50 hover:bg-indigo-50/20 rounded-lg p-2.5 text-center cursor-pointer transition-colors flex items-center justify-center gap-2">
+<i class="ph-bold ph-cloud-arrow-up text-indigo-500 text-base"></i>
+<span class="text-xs font-medium text-slate-600">Specs_Master_Standard_v4.csv</span>
+<span class="text-[10px] text-emerald-600 font-bold bg-emerald-100 px-1.5 py-0.2 rounded">Linked</span>
+</div>
+</div>
+</div>
+<!-- File Upload Field 3: ULM File -->
+<div class="rounded-xl border border-slate-200 bg-white p-3 hover:border-slate-300 transition-all">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-md bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">3</span>
+<div>
+<label class="text-xs font-semibold text-slate-800 block">ULM File (Universal Listing Model)</label>
+<span class="text-[11px] text-slate-400">Cross-channel SKU hierarchy feed</span>
+</div>
+</div>
+</div>
+<div class="mt-2.5">
+<div class="border border-dashed border-slate-300 hover:border-indigo-400 bg-slate-50/50 hover:bg-indigo-50/20 rounded-lg p-2 text-center cursor-pointer transition-colors flex items-center justify-center gap-2">
+<i class="ph-bold ph-file-arrow-up text-slate-400 text-base"></i>
+<span class="text-xs text-slate-500">ULM_Global_Feed_Latest.tsv</span>
+<span class="text-[10px] text-emerald-600 font-bold bg-emerald-100 px-1.5 py-0.2 rounded">Linked</span>
+</div>
+</div>
+</div>
+<!-- File Upload Field 4: Last Working File -->
+<div class="rounded-xl border border-slate-200 bg-white p-3 hover:border-slate-300 transition-all">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-md bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">4</span>
+<div>
+<label class="text-xs font-semibold text-slate-800 block">Last Working File</label>
+<span class="text-[11px] text-slate-400">Previous snapshot for diff &amp; delta comparison</span>
+</div>
+</div>
+</div>
+<div class="mt-2.5">
+<div class="border border-dashed border-slate-300 hover:border-indigo-400 bg-slate-50/50 hover:bg-indigo-50/20 rounded-lg p-2 text-center cursor-pointer transition-colors flex items-center justify-center gap-2">
+<i class="ph-bold ph-file-arrow-up text-slate-400 text-base"></i>
+<span class="text-xs text-slate-500">Garden_Hoses_Delta_Working_Prior.xlsx</span>
+<span class="text-[10px] text-emerald-600 font-bold bg-emerald-100 px-1.5 py-0.2 rounded">Linked</span>
+</div>
+</div>
+</div>
+<!-- Ingest Config Card -->
+<div class="p-3 bg-slate-100 rounded-lg text-xs space-y-1.5 text-slate-600 border border-slate-200">
+<div class="flex justify-between items-center text-slate-700 font-semibold">
+<span>Runtime Settings</span>
+<span class="text-indigo-600 cursor-pointer text-[11px]">Edit</span>
+</div>
+<div class="flex justify-between text-[11px]">
+<span>Playwright Workers:</span>
+<span class="font-mono text-slate-800">4 Concurrent</span>
+</div>
+<div class="flex justify-between text-[11px]">
+<span>Headless Browser:</span>
+<span class="font-mono text-slate-800">Chromium 122.0</span>
+</div>
+<div class="flex justify-between text-[11px]">
+<span>Auto Export Format:</span>
+<span class="font-mono text-slate-800">XLSX + Parquet</span>
+</div>
+</div>
+</div>
+<!-- Panel 2: Past Runs View (Toggleable or previewed) -->
+<div class="hidden flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar" id="runsPanel">
+<div class="flex items-center justify-between pb-2 border-b border-slate-100">
+<span class="text-xs font-semibold text-slate-700">Runs (Last 30 days)</span>
+<span class="text-xs text-slate-400">3 total</span>
+</div>
+<!-- Run Item 1: Completed -->
+<div class="p-3 rounded-lg border border-slate-200 hover:border-indigo-300 bg-white hover:shadow-xs cursor-pointer transition-all">
+<div class="flex items-center justify-between mb-1.5">
+<span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+<i class="ph-bold ph-check text-xs"></i> Successful
+            </span>
+<span class="text-[11px] font-mono text-slate-400">Mar 20, 07:38 pm</span>
+</div>
+<div class="text-xs text-slate-700 font-medium">Job #88b9e29a</div>
+<div class="text-[11px] text-slate-500 mt-0.5">1,420 items verified • 4 min 12s</div>
+</div>
+<!-- Run Item 2: Completed -->
+<div class="p-3 rounded-lg border border-slate-200 hover:border-indigo-300 bg-white hover:shadow-xs cursor-pointer transition-all">
+<div class="flex items-center justify-between mb-1.5">
+<span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+<i class="ph-bold ph-check text-xs"></i> Successful
+            </span>
+<span class="text-[11px] font-mono text-slate-400">Mar 20, 07:36 pm</span>
+</div>
+<div class="text-xs text-slate-700 font-medium">Job #74c3e80b</div>
+<div class="text-[11px] text-slate-500 mt-0.5">850 items verified • 2 min 40s</div>
+</div>
+<!-- Run Item 3: Completed -->
+<div class="p-3 rounded-lg border border-slate-200 hover:border-indigo-300 bg-white hover:shadow-xs cursor-pointer transition-all">
+<div class="flex items-center justify-between mb-1.5">
+<span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+<i class="ph-bold ph-check text-xs"></i> Successful
+            </span>
+<span class="text-[11px] font-mono text-slate-400">Mar 20, 07:33 pm</span>
+</div>
+<div class="text-xs text-slate-700 font-medium">Job #61d9a12c</div>
+<div class="text-[11px] text-slate-500 mt-0.5">320 items verified • 1 min 08s</div>
+</div>
+</div>
+<!-- Bottom Status Pill in Sidebar -->
+<div class="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs">
+<span class="text-slate-500 flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Engine Online
+        </span>
+<button class="text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1">
+<i class="ph-bold ph-sliders"></i> Config
+        </button>
+</div>
+</aside>
+<!-- END: LeftSidebarDrawer -->
+<!-- BEGIN: WorkflowCanvas -->
+<!-- High-tier Node Based Graph Surface -->
+<main class="flex-1 flex flex-col relative overflow-hidden bg-slate-100 canvas-grid">
+<!-- Canvas Toolbar Overlay (Top Floating Bar) -->
+<div class="absolute top-4 left-6 right-6 z-10 flex items-center justify-between pointer-events-none">
+<!-- Breadcrumbs & Step Indicator Overlay -->
+<div class="pointer-events-auto bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-xl border border-slate-200/80 shadow-sm flex items-center space-x-3">
+<div class="flex items-center space-x-2 text-xs font-medium text-slate-600">
+<span class="flex items-center gap-1 font-semibold text-slate-900">
+<i class="ph-bold ph-git-fork text-indigo-600"></i> Pipeline Architecture
+            </span>
+<span class="text-slate-300">|</span>
+<span class="text-slate-500">Execution Mode: <span class="text-slate-800 font-semibold">Strict QC + Crawler</span></span>
+</div>
+</div>
+<!-- Canvas Zoom & Controls -->
+<div class="pointer-events-auto flex items-center space-x-1 bg-white/95 backdrop-blur-md px-2 py-1.5 rounded-xl border border-slate-200/80 shadow-sm text-slate-600">
+<button class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700" title="Zoom In">
+<i class="ph-bold ph-plus text-xs"></i>
+</button>
+<span class="text-[11px] font-mono px-1 font-medium">100%</span>
+<button class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700" title="Zoom Out">
+<i class="ph-bold ph-minus text-xs"></i>
+</button>
+<div class="h-3.5 w-px bg-slate-200 mx-1"></div>
+<button class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700" title="Recenter Graph">
+<i class="ph-bold ph-arrows-out text-xs"></i>
+</button>
+</div>
+</div>
+<!-- Graph Container (Center Interactive Area) -->
+<div class="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar py-20 px-4 md:px-12 flex flex-col items-center">
+<!-- ================= PIPELINE NODES WITH CONNECTORS ================= -->
+<!-- NODE 0: TRIGGER / INGESTION -->
+<div class="w-full max-w-xl relative group">
+<!-- Step Pill Badge -->
+<div class="flex justify-center -mb-3 relative z-10">
+<span class="bg-indigo-600 text-white font-mono text-[10px] tracking-wider uppercase font-semibold px-2.5 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+<i class="ph-bold ph-arrow-fat-lines-down"></i> Trigger
+            </span>
+</div>
+<div class="bg-white rounded-2xl border border-slate-200 hover:border-indigo-300 shadow-card p-5 transition-all">
+<div class="flex items-start justify-between">
+<div class="flex items-center space-x-3.5">
+<div class="w-11 h-11 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-xs">
+<i class="ph-duotone ph-folder-notch-open text-2xl"></i>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="text-sm font-bold text-slate-900">1. Ingest Data Sources</h3>
+<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+<i class="ph-bold ph-check text-[10px] mr-1"></i> 4 Feeds Loaded
+                    </span>
+</div>
+<p class="text-xs text-slate-500 mt-0.5">QC Spreadsheet, Specs Master, ULM Hierarchies &amp; Last Working File</p>
+</div>
+</div>
+<button class="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-100">
+<i class="ph-bold ph-dots-three-vertical text-base"></i>
+</button>
+</div>
+<!-- Nested Data Meta Pill list -->
+<div class="mt-3.5 pt-3 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">
+<div class="flex items-center space-x-2 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200/60">
+<i class="ph-bold ph-file-spreadsheet text-emerald-600"></i>
+<span class="truncate text-slate-700 font-mono text-[11px]">Garden_Hoses_...xlsx</span>
+</div>
+<div class="flex items-center space-x-2 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200/60">
+<i class="ph-bold ph-database text-indigo-600"></i>
+<span class="truncate text-slate-700 font-mono text-[11px]">Specs_Master_v4.csv</span>
+</div>
+</div>
+</div>
+</div>
+<!-- CONNECTOR 1 -->
+<div class="h-10 flex flex-col items-center justify-center relative">
+<div class="w-0.5 h-full bg-slate-300"></div>
+<div class="w-2.5 h-2.5 rounded-full border-2 border-slate-400 bg-white absolute top-1/2 -translate-y-1/2"></div>
+</div>
+<!-- NODE 1: CLEANING & NORMALIZATION -->
+<div class="w-full max-w-xl relative group">
+<div class="flex justify-center -mb-3 relative z-10">
+<span class="bg-emerald-600 text-white font-mono text-[10px] tracking-wider uppercase font-semibold px-2.5 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+<i class="ph-bold ph-check"></i> Step 2 • Completed
+            </span>
+</div>
+<div class="bg-white rounded-2xl border border-slate-200 hover:border-slate-300 shadow-card p-5 transition-all">
+<div class="flex items-start justify-between">
+<div class="flex items-center space-x-3.5">
+<div class="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-xs">
+<i class="ph-duotone ph-broom text-2xl"></i>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="text-sm font-bold text-slate-900">2. Clean &amp; Normalize Attributes</h3>
+<span class="text-emerald-700 bg-emerald-50 text-[10px] font-mono px-2 py-0.5 rounded border border-emerald-200">1.2s</span>
+</div>
+<p class="text-xs text-slate-500 mt-0.5">Strip trailing whitespaces, regex unicode correction, casing alignment</p>
+</div>
+</div>
+<div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">
+<i class="ph-bold ph-check"></i>
+</div>
+</div>
+<!-- Stats Bar -->
+<div class="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
+<span class="flex items-center gap-1.5"><i class="ph-fill ph-check-circle text-emerald-500"></i> 1,420 rows normalized</span>
+<span class="text-slate-400">0 dropped records</span>
+</div>
+</div>
+</div>
+<!-- CONNECTOR 2 -->
+<div class="h-10 flex flex-col items-center justify-center relative">
+<div class="w-0.5 h-full bg-slate-300"></div>
+<div class="w-2.5 h-2.5 rounded-full border-2 border-slate-400 bg-white absolute top-1/2 -translate-y-1/2"></div>
+</div>
+<!-- NODE 2: SCHEMA & SPECS VALIDATION -->
+<div class="w-full max-w-xl relative group">
+<div class="flex justify-center -mb-3 relative z-10">
+<span class="bg-emerald-600 text-white font-mono text-[10px] tracking-wider uppercase font-semibold px-2.5 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+<i class="ph-bold ph-check"></i> Step 3 • Completed
+            </span>
+</div>
+<div class="bg-white rounded-2xl border border-slate-200 hover:border-slate-300 shadow-card p-5 transition-all">
+<div class="flex items-start justify-between">
+<div class="flex items-center space-x-3.5">
+<div class="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-xs">
+<i class="ph-duotone ph-shield-check text-2xl"></i>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="text-sm font-bold text-slate-900">3. Specs &amp; Schema Validation</h3>
+<span class="text-emerald-700 bg-emerald-50 text-[10px] font-mono px-2 py-0.5 rounded border border-emerald-200">0.8s</span>
+</div>
+<p class="text-xs text-slate-500 mt-0.5">Evaluated required mandatory keys against master dictionary</p>
+</div>
+</div>
+<div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">
+<i class="ph-bold ph-check"></i>
+</div>
+</div>
+<!-- Stats Bar -->
+<div class="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
+<span class="flex items-center gap-1.5"><i class="ph-fill ph-check-circle text-emerald-500"></i> 100% Schema conformity</span>
+<span class="text-slate-400">0 validation anomalies</span>
+</div>
+</div>
+</div>
+<!-- CONNECTOR 3 (Active Pulsing Line) -->
+<div class="h-12 flex flex-col items-center justify-center relative">
+<div class="w-1 h-full bg-indigo-500 rounded-full shadow-sm"></div>
+<div class="w-3.5 h-3.5 rounded-full bg-indigo-600 ring-4 ring-indigo-100 absolute top-1/2 -translate-y-1/2 animate-bounce"></div>
+</div>
+<!-- NODE 3: ACTIVE PLAYWRIGHT SCRAPER (PULSING / IN PROGRESS) -->
+<!-- Directly represents the active Scraping phase from Snapshot 2 -->
+<div class="w-full max-w-xl relative group active-node-glow">
+<div class="flex justify-center -mb-3 relative z-10">
+<span class="bg-indigo-600 text-white font-mono text-[10px] tracking-wider uppercase font-semibold px-3 py-0.5 rounded-full shadow-md shadow-indigo-500/30 flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-indigo-200 animate-ping"></span> Step 4 • In Progress
+            </span>
+</div>
+<div class="bg-white rounded-2xl border-2 border-indigo-500 shadow-node-active p-5.5 relative">
+<!-- Active Node Top Content -->
+<div class="flex items-start justify-between">
+<div class="flex items-center space-x-3.5">
+<div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/30">
+<i class="ph-duotone ph-spider text-2xl"></i>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="text-sm font-bold text-slate-900">4. Playwright Headless Web Scraper</h3>
+<span class="bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-md border border-indigo-200">
+                      Scraping Active
+                    </span>
+</div>
+<p class="text-xs text-slate-600 mt-1 font-normal">Scraping new product pages with Playwright headless clusters...</p>
+</div>
+</div>
+<!-- Worker Pill -->
+<span class="text-[11px] font-mono text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg border border-indigo-100 flex items-center gap-1">
+<i class="ph-bold ph-cpu"></i> 4 Workers
+              </span>
+</div>
+<!-- Progress Indicator Bar -->
+<div class="mt-4 bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2">
+<div class="flex justify-between items-center text-xs font-medium">
+<span class="text-slate-700 flex items-center gap-1.5 font-mono">
+<i class="ph-bold ph-arrows-clockwise text-indigo-600 animate-spin"></i>
+                  Processing URL batch 68 of 100
+                </span>
+<span class="font-mono text-indigo-600 font-bold">68%</span>
+</div>
+<div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+<div class="bg-indigo-600 h-2 rounded-full transition-all duration-500" style="width: 68%"></div>
+</div>
+<div class="flex justify-between items-center text-[11px] text-slate-400 font-mono">
+<span>Speed: ~42 pages/min</span>
+<span>ETA: 48 seconds remaining</span>
+</div>
+</div>
+<!-- Live micro-terminal inside node -->
+<div class="mt-3 bg-slate-900 rounded-lg p-2.5 font-mono text-[11px] text-slate-300 space-y-1">
+<div class="text-slate-400 flex items-center justify-between text-[10px] pb-1 border-b border-slate-800">
+<span>PLAYWRIGHT WORKER CONSOLE</span>
+<span class="text-emerald-400">THREAD #2 ACTIVE</span>
+</div>
+<p class="truncate text-indigo-300">&gt; [200 OK] GET https://supplier.internal/item/SKU-GH-09283</p>
+<p class="truncate text-emerald-400">&gt; Extracted: { burst_pressure: "500 PSI", material: "Hybrid Polymer" }</p>
+</div>
+</div>
+</div>
+<!-- CONNECTOR 4 -->
+<div class="h-10 flex flex-col items-center justify-center relative">
+<div class="w-0.5 h-full bg-slate-300"></div>
+<div class="w-2.5 h-2.5 rounded-full border-2 border-slate-400 bg-white absolute top-1/2 -translate-y-1/2"></div>
+</div>
+<!-- NODE 4: QC OUTPUT & EXPORT (COMPLETED / READY STATE) -->
+<!-- From Snapshot 1 & 2 Completed Target -->
+<div class="w-full max-w-xl relative group mb-12">
+<div class="flex justify-center -mb-3 relative z-10">
+<span class="bg-slate-700 text-white font-mono text-[10px] tracking-wider uppercase font-semibold px-2.5 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+<i class="ph-bold ph-download-simple"></i> Step 5 • Output Generation
+            </span>
+</div>
+<div class="bg-white rounded-2xl border border-slate-200 hover:border-slate-300 shadow-card p-5.5 transition-all">
+<div class="flex items-start justify-between">
+<div class="flex items-center space-x-3.5">
+<div class="w-11 h-11 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 shadow-xs">
+<i class="ph-duotone ph-file-arrow-down text-2xl"></i>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="text-sm font-bold text-slate-900">5. Final QC Master Dataset</h3>
+<span class="bg-slate-100 text-slate-600 text-[10px] font-semibold px-2 py-0.5 rounded">Ready on finish</span>
+</div>
+<p class="text-xs text-slate-500 mt-0.5">Automated merged output enriched with newly scraped technical parameters</p>
+</div>
+</div>
+</div>
+<!-- Download Button (Zapier / Enterprise UI style matching green button from image 1) -->
+<div class="mt-4 pt-4 border-t border-slate-100 space-y-2.5">
+<button class="w-full flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-medium py-2.5 px-4 rounded-xl shadow-md shadow-emerald-700/20 transition-all text-xs">
+<i class="ph-bold ph-download-simple text-base"></i>
+<span class="font-semibold">Download Output File (QC_Final_Export.xlsx)</span>
+</button>
+<div class="flex items-center justify-between text-[11px] text-slate-500 px-1">
+<span>Format: Microsoft Excel (.xlsx) + CSV</span>
+<a class="text-indigo-600 hover:underline flex items-center gap-0.5 font-medium" href="#">
+                  Send to Cloud Storage <i class="ph-bold ph-arrow-up-right text-[10px]"></i>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- BEGIN: BottomConsoleDrawer -->
+<!-- Collapsible Live Log Drawer directly inspired by Zapier's run inspector -->
+<footer class="bg-slate-950 border-t border-slate-800 text-slate-300 flex flex-col shrink-0 z-20 transition-all duration-300" data-purpose="execution-console" id="consoleDrawer" style="height: 190px;">
+<!-- Drawer Header -->
+<div class="h-9 px-4 bg-slate-900 border-b border-slate-800/80 flex items-center justify-between cursor-pointer" id="toggleConsole">
+<div class="flex items-center space-x-3">
+<div class="flex items-center space-x-1.5 text-xs font-semibold text-slate-200">
+<i class="ph-bold ph-terminal text-indigo-400"></i>
+<span>Execution Logs • Job 88b9e29a-1fce-4854-8761</span>
+</div>
+<span class="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[10px] bg-indigo-900/60 text-indigo-300 border border-indigo-700/50">
+<span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span> Streaming
+            </span>
+</div>
+<div class="flex items-center space-x-3 text-xs">
+<span class="text-slate-400 font-mono text-[11px]">Worker Memory: 312MB / 1024MB</span>
+<div class="h-3 w-px bg-slate-700"></div>
+<button class="text-slate-400 hover:text-white flex items-center gap-1 text-[11px]" title="Clear Console">
+<i class="ph-bold ph-trash"></i>
+</button>
+<button class="text-slate-400 hover:text-white" title="Minimize Drawer">
+<i class="ph-bold ph-caret-down"></i>
+</button>
+</div>
+</div>
+<!-- Terminal Body Stream -->
+<div class="flex-1 p-3 overflow-y-auto font-mono text-[11px] leading-relaxed text-slate-300 bg-slate-950 space-y-1 custom-scrollbar">
+<div class="flex items-start space-x-2 text-slate-500">
+<span class="select-none text-slate-600">[19:38:01]</span>
+<span class="text-indigo-400">[INIT]</span>
+<span>Bootstrapping pipeline run with 4 linked feeds. Hash: sha256:d89f2c</span>
+</div>
+<div class="flex items-start space-x-2 text-slate-500">
+<span class="select-none text-slate-600">[19:38:02]</span>
+<span class="text-emerald-400">[CLEAN]</span>
+<span class="text-slate-300">Cleaned 1,420 rows. Strip whitespace: complete, unicode normalizer: complete.</span>
+</div>
+<div class="flex items-start space-x-2 text-slate-500">
+<span class="select-none text-slate-600">[19:38:03]</span>
+<span class="text-emerald-400">[VALIDATE]</span>
+<span class="text-slate-300">Schema checked against Specs_Master_v4. 100% matched keys. No unmapped headers.</span>
+</div>
+<div class="flex items-start space-x-2 text-slate-500">
+<span class="select-none text-slate-600">[19:38:04]</span>
+<span class="text-sky-400">[PLAYWRIGHT]</span>
+<span class="text-slate-200">Spawned 4 headless browser instances (Chromium). Proxy rotation pool: active.</span>
+</div>
+<div class="flex items-start space-x-2 text-slate-500">
+<span class="select-none text-slate-600">[19:38:10]</span>
+<span class="text-sky-400">[PLAYWRIGHT]</span>
+<span class="text-slate-300">[Batch 1/10] Processed SKU-GH-00101 to SKU-GH-00110 in 1.4s. Match status: high confidence.</span>
+</div>
+<div class="flex items-start space-x-2 text-slate-500">
+<span class="select-none text-slate-600">[19:38:22]</span>
+<span class="text-sky-400">[PLAYWRIGHT]</span>
+<span class="text-indigo-200 font-semibold">[Current Task] Scraping item SKU-GH-00680 specs: Diameter 5/8 in, Heavy Duty brass fittings...</span>
+</div>
+</div>
+</footer>
+<!-- END: BottomConsoleDrawer -->
+</main>
+<!-- END: WorkflowCanvas -->
+</div>
+<!-- END: MainWorkspaceLayout -->
+<!-- BEGIN: InteractiveScripts -->
+<!-- Tab switching and drawer toggle logic -->
+<script data-purpose="ui-interactions">
+    document.addEventListener('DOMContentLoaded', () => {
+      // Sidebar Tab Switching
+      const tabIngest = document.getElementById('tabIngest');
+      const tabRuns = document.getElementById('tabRuns');
+      const ingestPanel = document.getElementById('ingestPanel');
+      const runsPanel = document.getElementById('runsPanel');
+
+      if (tabIngest && tabRuns && ingestPanel && runsPanel) {
+        tabIngest.addEventListener('click', () => {
+          tabIngest.className = "px-3 py-1 text-xs font-semibold rounded-md bg-white text-slate-800 shadow-sm border border-slate-200";
+          tabRuns.className = "px-3 py-1 text-xs font-medium rounded-md text-slate-500 hover:text-slate-800 hover:bg-slate-100";
+          ingestPanel.classList.remove('hidden');
+          runsPanel.classList.add('hidden');
+        });
+
+        tabRuns.addEventListener('click', () => {
+          tabRuns.className = "px-3 py-1 text-xs font-semibold rounded-md bg-white text-slate-800 shadow-sm border border-slate-200";
+          tabIngest.className = "px-3 py-1 text-xs font-medium rounded-md text-slate-500 hover:text-slate-800 hover:bg-slate-100";
+          runsPanel.classList.remove('hidden');
+          ingestPanel.classList.add('hidden');
+        });
+      }
+
+      // Console Drawer Collapse Toggle
+      const toggleConsole = document.getElementById('toggleConsole');
+      const consoleDrawer = document.getElementById('consoleDrawer');
+      let isCollapsed = false;
+
+      if (toggleConsole && consoleDrawer) {
+        toggleConsole.addEventListener('click', () => {
+          if (!isCollapsed) {
+            consoleDrawer.style.height = '36px';
+            isCollapsed = true;
+          } else {
+            consoleDrawer.style.height = '190px';
+            isCollapsed = false;
+          }
+        });
+      }
+
+      // Run Pipeline Trigger Feedback
+      const runBtn = document.getElementById('runBtn');
+      if (runBtn) {
+        runBtn.addEventListener('click', () => {
+          const originalHTML = runBtn.innerHTML;
+          runBtn.innerHTML = `<i class="ph-bold ph-spinner animate-spin text-sm"></i> <span>Deploying...</span>`;
+          runBtn.classList.add('opacity-90');
+          setTimeout(() => {
+            runBtn.innerHTML = originalHTML;
+            runBtn.classList.remove('opacity-90');
+          }, 1200);
+        });
+      }
+    });
+  </script>
+<!-- END: InteractiveScripts -->
+</body></html>

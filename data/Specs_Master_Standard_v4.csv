@@ -1,0 +1,4 @@
+field_name,required,type
+burst_pressure,True,string
+material,True,string
+fitting_size,True,string
