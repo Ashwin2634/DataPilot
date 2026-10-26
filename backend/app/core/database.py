@@ -31,14 +31,3 @@ async def get_db():
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        
-        # Ensure migration columns exist in SQLite if jobs table was created previously
-        try:
-            result = await conn.exec_driver_sql("PRAGMA table_info(jobs)")
-            cols = [row[1] for row in result.fetchall()]
-            if cols and "stage_outputs" not in cols:
-                await conn.exec_driver_sql("ALTER TABLE jobs ADD COLUMN stage_outputs TEXT DEFAULT '{}'")
-            if cols and "target_stage" not in cols:
-                await conn.exec_driver_sql("ALTER TABLE jobs ADD COLUMN target_stage VARCHAR(50) DEFAULT 'all'")
-        except Exception as e:
-            print(f"[DB MIGRATION NOTICE] {e}")

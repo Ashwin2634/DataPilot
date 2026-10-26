@@ -8,7 +8,6 @@ class Settings(BaseSettings):
     APP_NAME: str = "QC Product Processor"
     API_V1_STR: str = "/api/v1"
     
-    # Use environment variable or fallback to SQLite
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL", 
         f"sqlite+aiosqlite:///{BASE_DIR}/storage/app.db"
@@ -21,7 +20,7 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
         "http://localhost:3000",
-        "https://*.onrender.com",          # Allow Render domains
+        "https://datapilot-frontend-93bn.onrender.com",   # <-- your exact frontend URL
     ]
 
     class Config:
