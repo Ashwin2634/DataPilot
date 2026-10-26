@@ -27,10 +27,13 @@ app = FastAPI(
 )
 
 # CORS
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.BACKEND_CORS_ORIGINS,
-    allow_origin_regex=r".*",
+    allow_origins=[
+        "http://localhost:5173",
+        "https://datapilot-frontend-93bn.onrender.com",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

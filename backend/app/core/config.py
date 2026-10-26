@@ -20,9 +20,8 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
         "http://localhost:3000",
-        "https://datapilot-frontend-93bn.onrender.com",   # <-- your exact frontend URL
+        "https://datapilot-frontend-93bn.onrender.com",
     ]
-
     class Config:
         case_sensitive = True
         env_file = ".env"
