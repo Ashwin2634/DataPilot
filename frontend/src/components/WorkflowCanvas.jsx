@@ -159,8 +159,8 @@ const WorkflowCanvas = ({
       return {
         botState: 'loading',
         eyeColor: '#38bdf8',
-        badgeBg: 'bg-indigo-950/90 border-indigo-500/40 text-indigo-300',
-        pillBg: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
+        badgeBg: 'bg-indigo-950/45 border-indigo-400/30 text-indigo-100 hover:bg-indigo-950/60',
+        pillBg: 'bg-indigo-500/25 text-indigo-200 border-indigo-400/30 backdrop-blur-md',
         title: 'Cleaning Feeds...',
         desc: progressMessage || 'Normalizing rows, columns & barcode data',
       };
@@ -169,8 +169,8 @@ const WorkflowCanvas = ({
       return {
         botState: 'thinking',
         eyeColor: '#a78bfa',
-        badgeBg: 'bg-purple-950/90 border-purple-500/40 text-purple-300',
-        pillBg: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+        badgeBg: 'bg-purple-950/45 border-purple-400/30 text-purple-100 hover:bg-purple-950/60',
+        pillBg: 'bg-purple-500/25 text-purple-200 border-purple-400/30 backdrop-blur-md',
         title: 'Validating Specs...',
         desc: progressMessage || 'Cross-referencing attributes against Specs Master',
       };
@@ -179,8 +179,8 @@ const WorkflowCanvas = ({
       return {
         botState: 'loading',
         eyeColor: '#38bdf8',
-        badgeBg: 'bg-sky-950/90 border-sky-500/40 text-sky-300',
-        pillBg: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
+        badgeBg: 'bg-sky-950/45 border-sky-400/30 text-sky-100 hover:bg-sky-950/60',
+        pillBg: 'bg-sky-500/25 text-sky-200 border-sky-400/30 backdrop-blur-md',
         title: 'Playwright Scraping...',
         desc: progressMessage || 'Headless browser querying target domains',
       };
@@ -189,8 +189,8 @@ const WorkflowCanvas = ({
       return {
         botState: 'thinking',
         eyeColor: '#fbbf24',
-        badgeBg: 'bg-amber-950/90 border-amber-500/40 text-amber-300',
-        pillBg: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+        badgeBg: 'bg-amber-950/45 border-amber-400/30 text-amber-100 hover:bg-amber-950/60',
+        pillBg: 'bg-amber-500/25 text-amber-200 border-amber-400/30 backdrop-blur-md',
         title: 'Pipeline In Queue...',
         desc: progressMessage || 'Worker cluster initializing pipeline runtime',
       };
@@ -200,8 +200,8 @@ const WorkflowCanvas = ({
         return {
           botState: 'excited',
           eyeColor: '#34d399',
-          badgeBg: 'bg-emerald-950/90 border-emerald-500/40 text-emerald-300',
-          pillBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+          badgeBg: 'bg-emerald-950/45 border-emerald-400/30 text-emerald-100 hover:bg-emerald-950/60',
+          pillBg: 'bg-emerald-500/25 text-emerald-200 border-emerald-400/30 backdrop-blur-md',
           title: 'Cleaner Pipeline Completed!',
           desc: cleanerOutput?.row_count
             ? `Cleaned ${cleanerOutput.row_count.toLocaleString()} rows into standard schema. Working file ready.`
@@ -212,8 +212,8 @@ const WorkflowCanvas = ({
         return {
           botState: 'excited',
           eyeColor: '#34d399',
-          badgeBg: 'bg-emerald-950/90 border-emerald-500/40 text-emerald-300',
-          pillBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+          badgeBg: 'bg-emerald-950/45 border-emerald-400/30 text-emerald-100 hover:bg-emerald-950/60',
+          pillBg: 'bg-emerald-500/25 text-emerald-200 border-emerald-400/30 backdrop-blur-md',
           title: 'Validation Completed!',
           desc: validatorOutput?.new_products_count !== undefined
             ? `Validated ${validatorOutput.row_count.toLocaleString()} rows (${validatorOutput.new_products_count} new products detected).`
@@ -223,18 +223,18 @@ const WorkflowCanvas = ({
       return {
         botState: 'excited',
         eyeColor: '#34d399',
-        badgeBg: 'bg-emerald-950/90 border-emerald-500/40 text-emerald-300',
-        pillBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+        badgeBg: 'bg-emerald-950/45 border-emerald-400/30 text-emerald-100 hover:bg-emerald-950/60',
+        pillBg: 'bg-emerald-500/25 text-emerald-200 border-emerald-400/30 backdrop-blur-md',
         title: 'Pipeline Completed!',
         desc: progressMessage || 'Processed dataset ready for export and download',
       };
     }
     if (status === 'failed') {
       return {
-        botState: 'curious',
+        botState: 'worried',
         eyeColor: '#f87171',
-        badgeBg: 'bg-red-950/90 border-red-500/40 text-red-300',
-        pillBg: 'bg-red-500/20 text-red-300 border-red-500/30',
+        badgeBg: 'bg-rose-950/45 border-rose-400/30 text-rose-100 hover:bg-rose-950/60',
+        pillBg: 'bg-rose-500/25 text-rose-200 border-rose-400/30 backdrop-blur-md',
         title: 'Run Attention Needed',
         desc: progressMessage || 'Anomalies or run errors detected',
       };
@@ -242,8 +242,8 @@ const WorkflowCanvas = ({
     return {
       botState: step1Done ? 'happy' : 'idle',
       eyeColor: '#38bdf8',
-      badgeBg: 'bg-slate-900/95 border-slate-700/80 text-slate-200',
-      pillBg: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
+      badgeBg: 'bg-slate-900/45 border-white/20 text-slate-100 hover:bg-slate-900/55',
+      pillBg: 'bg-white/10 text-white border-white/20 backdrop-blur-md',
       title: step1Done ? 'Feeds Configured' : 'Playwright Engine Ready',
       desc: step1Done ? 'Ready to execute. Click "Run Pipeline"' : 'Standing by for source feeds',
     };
@@ -259,29 +259,32 @@ const WorkflowCanvas = ({
           setBotClickReaction((prev) => (prev === 'excited' ? 'happy' : 'excited'));
           setTimeout(() => setBotClickReaction(null), 2500);
         }}
-        className={`pointer-events-auto flex items-center gap-3 px-3.5 py-2 rounded-2xl border shadow-lg backdrop-blur-md transition-all cursor-pointer group hover:border-indigo-400/60 ${pilot.badgeBg}`}
+        className={`pointer-events-auto relative overflow-hidden flex items-center gap-3.5 px-4 py-2.5 rounded-2xl border shadow-[0_12px_36px_rgba(0,0,0,0.22)] backdrop-blur-xl transition-all duration-300 cursor-pointer group hover:border-indigo-400/50 hover:shadow-[0_16px_44px_rgba(99,102,241,0.25)] hover:-translate-y-0.5 ${pilot.badgeBg}`}
         title={`Pilot is ${activeBotState}. Click to interact!`}
       >
-        <GrokBot
-          state={activeBotState}
-          size={36}
-          color="#0b1120"
-          eyeColor={pilot.eyeColor}
-          followCursor={true}
-          className="group-hover:scale-110 transition-transform"
-          label="Pilot Pipeline Sentinel"
-        />
-        <div className="flex flex-col text-left">
+        {/* Subtle glass reflection sheen */}
+        <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/15 to-transparent pointer-events-none rounded-t-2xl" />
+
+        <div className="relative z-10 shrink-0">
+          <GrokBot
+            state={activeBotState}
+            size={40}
+            followCursor={true}
+            className="group-hover:scale-110 transition-transform"
+            label="Pilot Pipeline Sentinel"
+          />
+        </div>
+        <div className="flex flex-col text-left relative z-10">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-white tracking-tight">Pilot</span>
-            <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border uppercase tracking-wider ${pilot.pillBg}`}>
+            <span className="text-xs font-bold text-white tracking-tight drop-shadow-xs">Pilot</span>
+            <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border uppercase tracking-wider font-semibold ${pilot.pillBg}`}>
               {activeBotState}
             </span>
           </div>
-          <span className="text-[11px] font-medium text-slate-300 max-w-[220px] truncate leading-tight mt-0.5">
+          <span className="text-[11px] font-semibold text-slate-100 max-w-[220px] truncate leading-tight mt-0.5 drop-shadow-2xs">
             {pilot.title}
           </span>
-          <span className="text-[10px] text-slate-400 max-w-[220px] truncate mt-0.5">
+          <span className="text-[10px] text-slate-300 max-w-[220px] truncate mt-0.5">
             {pilot.desc}
           </span>
         </div>
@@ -306,37 +309,31 @@ const WorkflowCanvas = ({
           </div>
         </div>
 
-        {/* Right Corner: Engine Status Badge & Zoom Controls */}
-        <div className="pointer-events-auto flex flex-col items-end gap-2.5">
-          {/* Playwright Engine Ready Badge */}
-          {getStatusBadge()}
-
-          {/* Canvas Zoom & Controls */}
-          <div className="flex items-center space-x-1 bg-white/95 backdrop-blur-md px-2 py-1.5 rounded-xl border border-slate-200/80 shadow-sm text-slate-600">
-            <button
-              onClick={handleZoomIn}
-              className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 transition-colors"
-              title="Zoom In"
-            >
-              <i className="ph-bold ph-plus text-xs"></i>
-            </button>
-            <span className="text-[11px] font-mono px-1 font-medium">{zoom}%</span>
-            <button
-              onClick={handleZoomOut}
-              className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 transition-colors"
-              title="Zoom Out"
-            >
-              <i className="ph-bold ph-minus text-xs"></i>
-            </button>
-            <div className="h-3.5 w-px bg-slate-200 mx-1"></div>
-            <button
-              onClick={handleZoomReset}
-              className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 transition-colors"
-              title="Recenter Graph"
-            >
-              <i className="ph-bold ph-arrows-out text-xs"></i>
-            </button>
-          </div>
+        {/* Right Corner: Canvas Zoom Controls */}
+        <div className="pointer-events-auto flex items-center space-x-1 bg-white/95 backdrop-blur-md px-2 py-1.5 rounded-xl border border-slate-200/80 shadow-sm text-slate-600 mt-1">
+          <button
+            onClick={handleZoomIn}
+            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 transition-colors"
+            title="Zoom In"
+          >
+            <i className="ph-bold ph-plus text-xs"></i>
+          </button>
+          <span className="text-[11px] font-mono px-1 font-medium">{zoom}%</span>
+          <button
+            onClick={handleZoomOut}
+            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 transition-colors"
+            title="Zoom Out"
+          >
+            <i className="ph-bold ph-minus text-xs"></i>
+          </button>
+          <div className="h-3.5 w-px bg-slate-200 mx-1"></div>
+          <button
+            onClick={handleZoomReset}
+            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-700 transition-colors"
+            title="Recenter Graph"
+          >
+            <i className="ph-bold ph-arrows-out text-xs"></i>
+          </button>
         </div>
       </div>
 
@@ -366,11 +363,10 @@ const WorkflowCanvas = ({
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm font-bold text-slate-900">1. Ingest Data Sources</h3>
                       <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border ${
-                          feedsLoadedCount > 0
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                            : 'bg-slate-50 text-slate-500 border-slate-200'
-                        }`}
+                        className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border ${feedsLoadedCount > 0
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : 'bg-slate-50 text-slate-500 border-slate-200'
+                          }`}
                       >
                         <i className={`ph-bold ${feedsLoadedCount > 0 ? 'ph-check text-emerald-600' : 'ph-clock'} text-[10px] mr-1`}></i>
                         {feedsLoadedCount > 0 ? `${feedsLoadedCount} Feeds Loaded` : 'Awaiting Feeds'}
@@ -418,11 +414,10 @@ const WorkflowCanvas = ({
                           }}
                           onDragLeave={() => setDragOverKey(null)}
                           onDrop={(e) => handleDrop(e, slot.key)}
-                          className={`flex items-center justify-between space-x-2 px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer group shadow-2xs ${
-                            isDragActive
-                              ? 'border-indigo-500 bg-indigo-50/70 ring-2 ring-indigo-200'
-                              : 'bg-emerald-50/60 border-emerald-300/80 hover:bg-emerald-50 hover:border-emerald-400'
-                          }`}
+                          className={`flex items-center justify-between space-x-2 px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer group shadow-2xs ${isDragActive
+                            ? 'border-indigo-500 bg-indigo-50/70 ring-2 ring-indigo-200'
+                            : 'bg-emerald-50/60 border-emerald-300/80 hover:bg-emerald-50 hover:border-emerald-400'
+                            }`}
                           title={`Uploaded: ${currentFile.name} (${formatFileSize(currentFile.size)}). Click to replace.`}
                         >
                           <div className="flex items-center space-x-2 truncate min-w-0 pr-1">
@@ -483,11 +478,10 @@ const WorkflowCanvas = ({
                           }}
                           onDragLeave={() => setDragOverKey(null)}
                           onDrop={(e) => handleDrop(e, slot.key)}
-                          className={`flex items-center justify-between space-x-2 px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer group ${
-                            isDragActive
-                              ? 'border-indigo-500 bg-indigo-50/70 ring-2 ring-indigo-200'
-                              : 'bg-slate-50 hover:bg-slate-100/90 hover:border-indigo-300 border-slate-200/80'
-                          }`}
+                          className={`flex items-center justify-between space-x-2 px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer group ${isDragActive
+                            ? 'border-indigo-500 bg-indigo-50/70 ring-2 ring-indigo-200'
+                            : 'bg-slate-50 hover:bg-slate-100/90 hover:border-indigo-300 border-slate-200/80'
+                            }`}
                           title={`Click or drag & drop to upload ${slot.title}`}
                         >
                           <div className="flex items-center space-x-2 truncate min-w-0 pr-1">
@@ -518,35 +512,32 @@ const WorkflowCanvas = ({
           <div className="w-full max-w-xl relative group">
             <div className="flex justify-center -mb-3.5 relative z-10">
               <span
-                className={`text-white font-mono text-[10px] tracking-wider uppercase font-semibold px-3 py-0.5 rounded-full shadow-sm flex items-center gap-1 ${
-                  step2Done
-                    ? 'bg-emerald-600'
-                    : step2Active
+                className={`text-white font-mono text-[10px] tracking-wider uppercase font-semibold px-3 py-0.5 rounded-full shadow-sm flex items-center gap-1 ${step2Done
+                  ? 'bg-emerald-600'
+                  : step2Active
                     ? 'bg-indigo-600 animate-pulse'
                     : 'bg-slate-500'
-                }`}
+                  }`}
               >
                 <i className={`ph-bold ${step2Done ? 'ph-check' : step2Active ? 'ph-arrows-clockwise animate-spin' : 'ph-clock'}`}></i>
                 Step 2 • {step2Done ? 'Completed' : step2Active ? 'In Progress' : 'Pending'}
               </span>
             </div>
             <div
-              className={`bg-white rounded-lg border shadow-card pt-7 px-6 pb-6 transition-all ${
-                step2Active
-                  ? 'border-2 border-indigo-500 ring-2 ring-indigo-100'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
+              className={`bg-white rounded-lg border shadow-card pt-7 px-6 pb-6 transition-all ${step2Active
+                ? 'border-2 border-indigo-500 ring-2 ring-indigo-100'
+                : 'border-slate-200 hover:border-slate-300'
+                }`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3.5">
                   <div
-                    className={`w-11 h-11 rounded-lg flex items-center justify-center shadow-xs shrink-0 ${
-                      step2Done
-                        ? 'bg-emerald-50 border border-emerald-100 text-emerald-600'
-                        : step2Active
+                    className={`w-11 h-11 rounded-lg flex items-center justify-center shadow-xs shrink-0 ${step2Done
+                      ? 'bg-emerald-50 border border-emerald-100 text-emerald-600'
+                      : step2Active
                         ? 'bg-indigo-50 border border-indigo-100 text-indigo-600'
                         : 'bg-slate-100 border border-slate-200 text-slate-500'
-                    }`}
+                      }`}
                   >
                     <i className="ph-duotone ph-broom text-2xl"></i>
                   </div>
@@ -568,13 +559,12 @@ const WorkflowCanvas = ({
                   </div>
                 </div>
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                    step2Done
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : step2Active
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${step2Done
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : step2Active
                       ? 'bg-indigo-100 text-indigo-700'
                       : 'bg-slate-100 text-slate-400'
-                  }`}
+                    }`}
                 >
                   <i className={`ph-bold ${step2Done ? 'ph-check' : step2Active ? 'ph-spinner animate-spin' : 'ph-clock'}`}></i>
                 </div>
@@ -586,10 +576,10 @@ const WorkflowCanvas = ({
                   {cleanerOutput
                     ? `${cleanerOutput.row_count.toLocaleString()} rows mapped to standard schema`
                     : step2Done
-                    ? 'Data cleaned & normalized'
-                    : step2Active
-                    ? 'Cleaning rows...'
-                    : 'Awaiting previous step'}
+                      ? 'Data cleaned & normalized'
+                      : step2Active
+                        ? 'Cleaning rows...'
+                        : 'Awaiting previous step'}
                 </span>
                 <span className="text-slate-400">
                   {cleanerOutput ? `${cleanerOutput.col_count} columns` : 'Standard Schema'}
@@ -653,35 +643,32 @@ const WorkflowCanvas = ({
           <div className="w-full max-w-xl relative group">
             <div className="flex justify-center -mb-3.5 relative z-10">
               <span
-                className={`text-white font-mono text-[10px] tracking-wider uppercase font-semibold px-3 py-0.5 rounded-full shadow-sm flex items-center gap-1 ${
-                  step3Done
-                    ? 'bg-emerald-600'
-                    : step3Active
+                className={`text-white font-mono text-[10px] tracking-wider uppercase font-semibold px-3 py-0.5 rounded-full shadow-sm flex items-center gap-1 ${step3Done
+                  ? 'bg-emerald-600'
+                  : step3Active
                     ? 'bg-indigo-600 animate-pulse'
                     : 'bg-slate-500'
-                }`}
+                  }`}
               >
                 <i className={`ph-bold ${step3Done ? 'ph-check' : step3Active ? 'ph-arrows-clockwise animate-spin' : 'ph-clock'}`}></i>
                 Step 3 • {step3Done ? 'Completed' : step3Active ? 'In Progress' : 'Standby'}
               </span>
             </div>
             <div
-              className={`bg-white rounded-lg border shadow-card pt-7 px-6 pb-6 transition-all ${
-                step3Active
-                  ? 'border-2 border-indigo-500 ring-2 ring-indigo-100'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
+              className={`bg-white rounded-lg border shadow-card pt-7 px-6 pb-6 transition-all ${step3Active
+                ? 'border-2 border-indigo-500 ring-2 ring-indigo-100'
+                : 'border-slate-200 hover:border-slate-300'
+                }`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3.5">
                   <div
-                    className={`w-11 h-11 rounded-lg flex items-center justify-center shadow-xs shrink-0 ${
-                      step3Done
-                        ? 'bg-emerald-50 border border-emerald-100 text-emerald-600'
-                        : step3Active
+                    className={`w-11 h-11 rounded-lg flex items-center justify-center shadow-xs shrink-0 ${step3Done
+                      ? 'bg-emerald-50 border border-emerald-100 text-emerald-600'
+                      : step3Active
                         ? 'bg-indigo-50 border border-indigo-100 text-indigo-600'
                         : 'bg-slate-100 border border-slate-200 text-slate-500'
-                    }`}
+                      }`}
                   >
                     <i className="ph-duotone ph-shield-check text-2xl"></i>
                   </div>
@@ -703,13 +690,12 @@ const WorkflowCanvas = ({
                   </div>
                 </div>
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                    step3Done
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : step3Active
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${step3Done
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : step3Active
                       ? 'bg-indigo-100 text-indigo-700'
                       : 'bg-slate-100 text-slate-400'
-                  }`}
+                    }`}
                 >
                   <i className={`ph-bold ${step3Done ? 'ph-check' : step3Active ? 'ph-spinner animate-spin' : 'ph-clock'}`}></i>
                 </div>
@@ -721,10 +707,10 @@ const WorkflowCanvas = ({
                   {validatorOutput
                     ? `${validatorOutput.new_products_count ?? 0} new products, ${validatorOutput.existing_products_count ?? 0} existing`
                     : step3Done
-                    ? 'Schema conformity & validation complete'
-                    : step3Active
-                    ? 'Comparing headers & types...'
-                    : 'Awaiting validation run'}
+                      ? 'Schema conformity & validation complete'
+                      : step3Active
+                        ? 'Comparing headers & types...'
+                        : 'Awaiting validation run'}
                 </span>
                 <span className="text-slate-400">
                   {validatorOutput?.new_products_count !== undefined ? `${validatorOutput.new_products_count} to scrape` : 'Standby'}
@@ -781,18 +767,16 @@ const WorkflowCanvas = ({
           {/* CONNECTOR 3 (Active Pulsing Line when Step 4 active) */}
           <div className="h-16 flex flex-col items-center justify-center relative">
             <div
-              className={`w-1 h-full rounded-full transition-all ${
-                step3Done ? 'bg-emerald-400' : step4Active ? 'bg-indigo-500 shadow-sm' : 'bg-slate-300'
-              }`}
+              className={`w-1 h-full rounded-full transition-all ${step3Done ? 'bg-emerald-400' : step4Active ? 'bg-indigo-500 shadow-sm' : 'bg-slate-300'
+                }`}
             ></div>
             <div
-              className={`w-3.5 h-3.5 rounded-full absolute top-1/2 -translate-y-1/2 ${
-                step4Active
-                  ? 'bg-indigo-600 ring-4 ring-indigo-100 animate-bounce'
-                  : step3Done
+              className={`w-3.5 h-3.5 rounded-full absolute top-1/2 -translate-y-1/2 ${step4Active
+                ? 'bg-indigo-600 ring-4 ring-indigo-100 animate-bounce'
+                : step3Done
                   ? 'bg-emerald-500'
                   : 'bg-white border-2 border-slate-300'
-              }`}
+                }`}
             ></div>
           </div>
 
@@ -801,36 +785,33 @@ const WorkflowCanvas = ({
             {/* Step Pill Badge */}
             <div className="flex justify-center -mb-3.5 relative z-10">
               <span
-                className={`text-white font-mono text-[10px] tracking-wider uppercase font-semibold px-3 py-0.5 rounded-full shadow-md flex items-center gap-1.5 ${
-                  step4Done
-                    ? 'bg-emerald-600 shadow-emerald-500/20'
-                    : step4Active
+                className={`text-white font-mono text-[10px] tracking-wider uppercase font-semibold px-3 py-0.5 rounded-full shadow-md flex items-center gap-1.5 ${step4Done
+                  ? 'bg-emerald-600 shadow-emerald-500/20'
+                  : step4Active
                     ? 'bg-indigo-600 shadow-indigo-500/30'
                     : 'bg-slate-700'
-                }`}
+                  }`}
               >
                 {step4Active && <span className="w-2 h-2 rounded-full bg-indigo-200 animate-ping"></span>}
                 Step 4 • {step4Done ? 'Completed' : step4Active ? 'In Progress' : 'Standby'}
               </span>
             </div>
             <div
-              className={`bg-white rounded-lg pt-7 px-6 pb-6 relative transition-all ${
-                step4Active
-                  ? 'border-2 border-indigo-500 shadow-node-active'
-                  : 'border border-slate-200 hover:border-slate-300 shadow-card'
-              }`}
+              className={`bg-white rounded-lg pt-7 px-6 pb-6 relative transition-all ${step4Active
+                ? 'border-2 border-indigo-500 shadow-node-active'
+                : 'border border-slate-200 hover:border-slate-300 shadow-card'
+                }`}
             >
               {/* Active Node Top Content */}
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3.5">
                   <div
-                    className={`w-12 h-12 rounded-lg flex items-center justify-center shadow-md shrink-0 ${
-                      step4Done
-                        ? 'bg-emerald-600 text-white shadow-emerald-500/20'
-                        : step4Active
+                    className={`w-12 h-12 rounded-lg flex items-center justify-center shadow-md shrink-0 ${step4Done
+                      ? 'bg-emerald-600 text-white shadow-emerald-500/20'
+                      : step4Active
                         ? 'bg-indigo-600 text-white shadow-indigo-500/30'
                         : 'bg-slate-100 text-slate-500 border border-slate-200'
-                    }`}
+                      }`}
                   >
                     <i className="ph-duotone ph-spider text-2xl"></i>
                   </div>
@@ -888,9 +869,8 @@ const WorkflowCanvas = ({
                 </div>
                 <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                   <div
-                    className={`h-2 rounded-full transition-all duration-500 ${
-                      step4Done ? 'bg-emerald-500' : 'bg-indigo-600'
-                    }`}
+                    className={`h-2 rounded-full transition-all duration-500 ${step4Done ? 'bg-emerald-500' : 'bg-indigo-600'
+                      }`}
                     style={{ width: step4Done ? '100%' : step4Active ? '68%' : '0%' }}
                   ></div>
                 </div>
@@ -910,13 +890,12 @@ const WorkflowCanvas = ({
                   <i className="ph-bold ph-terminal text-indigo-600 text-sm"></i>
                   <span className="font-semibold text-slate-800">Playwright Worker Console</span>
                   <span
-                    className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
-                      step4Active
-                        ? 'bg-indigo-50 text-indigo-700 border-indigo-200 font-bold'
-                        : step4Done
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${step4Active
+                      ? 'bg-indigo-50 text-indigo-700 border-indigo-200 font-bold'
+                      : step4Done
                         ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                         : 'bg-slate-100 text-slate-500 border-slate-200'
-                    }`}
+                      }`}
                   >
                     {step4Active ? 'Thread #2 Active' : step4Done ? 'Complete' : 'Standby'}
                   </span>
@@ -1010,9 +989,8 @@ const WorkflowCanvas = ({
             {/* Step Pill Badge */}
             <div className="flex justify-center -mb-3.5 relative z-10">
               <span
-                className={`font-mono text-[10px] tracking-wider uppercase font-semibold px-3 py-0.5 rounded-full shadow-sm flex items-center gap-1 ${
-                  step5Ready ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-white'
-                }`}
+                className={`font-mono text-[10px] tracking-wider uppercase font-semibold px-3 py-0.5 rounded-full shadow-sm flex items-center gap-1 ${step5Ready ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-white'
+                  }`}
               >
                 <i className="ph-bold ph-download-simple"></i> Step 5 • {step5Ready ? 'Ready for Download' : 'Standby'}
               </span>
@@ -1021,11 +999,10 @@ const WorkflowCanvas = ({
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3.5">
                   <div
-                    className={`w-11 h-11 rounded-lg flex items-center justify-center shadow-xs shrink-0 ${
-                      step5Ready
-                        ? 'bg-emerald-50 border border-emerald-100 text-emerald-600'
-                        : 'bg-slate-100 border border-slate-200 text-slate-700'
-                    }`}
+                    className={`w-11 h-11 rounded-lg flex items-center justify-center shadow-xs shrink-0 ${step5Ready
+                      ? 'bg-emerald-50 border border-emerald-100 text-emerald-600'
+                      : 'bg-slate-100 border border-slate-200 text-slate-700'
+                      }`}
                   >
                     <i className="ph-duotone ph-file-arrow-down text-2xl"></i>
                   </div>
@@ -1033,9 +1010,8 @@ const WorkflowCanvas = ({
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm font-bold text-slate-900">5. Final QC Master Dataset</h3>
                       <span
-                        className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
-                          step5Ready ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
-                        }`}
+                        className={`text-[10px] font-semibold px-2 py-0.5 rounded ${step5Ready ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+                          }`}
                       >
                         {step5Ready ? 'Ready for Download' : 'Available on full run'}
                       </span>
@@ -1054,11 +1030,10 @@ const WorkflowCanvas = ({
                     type="button"
                     onClick={() => openPreview('exporter', exporterOutput)}
                     disabled={!step5Ready || !exporterOutput}
-                    className={`flex-1 flex items-center justify-center space-x-1.5 py-3 px-4 rounded-xl text-xs font-semibold transition-all ${
-                      step5Ready && exporterOutput
-                        ? 'bg-white hover:bg-slate-50 text-indigo-700 border border-indigo-200 shadow-sm cursor-pointer'
-                        : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
-                    }`}
+                    className={`flex-1 flex items-center justify-center space-x-1.5 py-3 px-4 rounded-xl text-xs font-semibold transition-all ${step5Ready && exporterOutput
+                      ? 'bg-white hover:bg-slate-50 text-indigo-700 border border-indigo-200 shadow-sm cursor-pointer'
+                      : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
+                      }`}
                   >
                     <i className="ph-bold ph-eye text-base"></i>
                     <span>View Full Data</span>
@@ -1068,11 +1043,10 @@ const WorkflowCanvas = ({
                     <button
                       onClick={() => onDownload?.('xlsx')}
                       disabled={!step5Ready || !exporterOutput}
-                      className={`flex-1 flex items-center justify-center space-x-1.5 py-3 px-3 rounded-xl text-xs font-semibold transition-all ${
-                        step5Ready && exporterOutput
-                          ? 'bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white shadow-md shadow-emerald-700/20 cursor-pointer'
-                          : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                      }`}
+                      className={`flex-1 flex items-center justify-center space-x-1.5 py-3 px-3 rounded-xl text-xs font-semibold transition-all ${step5Ready && exporterOutput
+                        ? 'bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white shadow-md shadow-emerald-700/20 cursor-pointer'
+                        : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                        }`}
                       title="Download Final Master Excel"
                     >
                       <i className="ph-bold ph-download-simple text-base"></i>
@@ -1081,11 +1055,10 @@ const WorkflowCanvas = ({
                     <button
                       onClick={() => onDownload?.('csv')}
                       disabled={!step5Ready || !exporterOutput}
-                      className={`flex-1 flex items-center justify-center space-x-1.5 py-3 px-3 rounded-xl text-xs font-semibold transition-all ${
-                        step5Ready && exporterOutput
-                          ? 'bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-white shadow-md cursor-pointer'
-                          : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                      }`}
+                      className={`flex-1 flex items-center justify-center space-x-1.5 py-3 px-3 rounded-xl text-xs font-semibold transition-all ${step5Ready && exporterOutput
+                        ? 'bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-white shadow-md cursor-pointer'
+                        : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                        }`}
                       title="Download Final Master CSV"
                     >
                       <i className="ph-bold ph-file-csv text-base"></i>
@@ -1103,6 +1076,11 @@ const WorkflowCanvas = ({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Floating Bottom Sentinel Card (Glassmorphic Pilot Companion) */}
+      <div className="absolute bottom-5 right-6 z-20 pointer-events-none">
+        {getStatusBadge()}
       </div>
 
       {/* Stage Working File Preview Modal */}

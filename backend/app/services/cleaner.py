@@ -1,4 +1,3 @@
-from numpy._core import defchararray
 import re
 from pathlib import Path
 from typing import Tuple, Optional
@@ -17,8 +16,18 @@ COLUMN_MAP = {
     "Date": ["Date", "Crawl Date", "Scraped Date", "Collected Date"],
     "Country": ["Country", "Marketplace Country"],
     "Category": ["Category", "Product Category", "Cat"],
-    "Shelf Price": ["Shelf Price", "Price", "Current Price", "Selling Price", "List Price"],
-    "Net Price": ["Net Price", "Final Price", "Discounted Price"],
+
+    # ---------- UPDATED PRICE MAPPINGS ----------
+    "Shelf Price": [
+        "Shelf Price", "Price", "Current Price", "Selling Price", "List Price",
+        "Original Price", "Regular Price", "MSRP", "Was Price", "Base Price"
+    ],
+    "Net Price": [
+        "Net Price", "Final Price", "Discounted Price", "Purchase Price",
+        "Sale Price", "Deal Price", "Offer Price", "Promo Price"
+    ],
+    # --------------------------------------------
+
     "In Stock": ["In Stock", "Availability", "Stock", "Stock Status"],
     "URL": ["URL", "Product URL", "Product Link", "Link", "Supplier URL", "Page URL", "Web URL"],
     "Merchant SKU": ["Merchant SKU", "Merchant Product ID", "Merchant ID", "SKU", "Seller SKU"],
@@ -172,11 +181,15 @@ def pad_upc(s: pd.Series) -> pd.Series:
 
     return s.map(_clean_one)
 
+
 def apply_cleanups(df: pd.DataFrame, week_monday: pd.Timestamp) -> pd.DataFrame:
     df = df.copy()
 
-    # 1. Date -> Monday of the QC week
+    # 1. Date -> Monday of the QC week (pure date only, no timestamp)
     if "Date" in df.columns:
+        # Convert to datetime.date so Excel/CSV never shows time
+        if hasattr(week_monday, "date"):
+            week_monday = week_monday.date()
         df["Date"] = week_monday
 
     # 2. Merchant clean
@@ -228,6 +241,7 @@ def sort_by_shelf_price(df: pd.DataFrame) -> pd.DataFrame:
         kind="mergesort"
     ).reset_index(drop=True)
 
+
 def convert_scientific_to_str(val):
     if pd.isna(val) or val == "" or val is None:
         return ""
@@ -246,6 +260,7 @@ def convert_scientific_to_str(val):
         return f"{int(float(val))}"
     except (ValueError, OverflowError):
         return val
+
 
 # ============================================================
 # Main Cleaner Pipeline
@@ -344,6 +359,11 @@ async def clean_data(
 
     # ---------- 3. Map columns ----------
     df = map_columns(raw)
+
+    # Explicitly leave these columns empty in the working file
+    for col in ["Part Number", "Brand", "Product"]:
+        if col in df.columns:
+            df[col] = np.nan
 
     # ---------- 4. Determine week Monday ----------
     if not week_date:

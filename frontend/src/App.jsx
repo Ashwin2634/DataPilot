@@ -49,7 +49,7 @@ function App() {
       if (status === 'completed') {
         setBotState('excited');
       } else if (status === 'failed') {
-        setBotState('curious');
+        setBotState('worried');
       } else if (configuredCount > 0) {
         setBotState('happy');
       } else {

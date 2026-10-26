@@ -14,7 +14,7 @@ from app.models.job import Job, JobStatus
 
 # Import the pipelines
 from app.services.cleaner import clean_data
-from app.services.validator import validate_and_find_new_products
+from app.services.validator import validate_and_find_new_products, compute_validation_breakdown
 from app.services.scraper import scrape_new_products
 from app.services.exporter import generate_final_excel
 
@@ -168,6 +168,16 @@ async def process_job(job_id: str):
         validated_df.to_excel(validated_file_path, index=False)
         validated_df.to_csv(validated_csv_path, index=False)
 
+        # Compute breakdown of entries: from discard, from ulm, from specs, discard no price
+        breakdown = compute_validation_breakdown(validated_df)
+        breakdown_msg = (
+            f"Validation source breakdown for {validated_file_path.name} ({len(validated_df):,} rows): "
+            f"{breakdown['from_discard']:,} from Discard (part number), "
+            f"{breakdown['from_ulm']:,} from ULM (tag), "
+            f"{breakdown['from_specs']:,} from Specs (tag), "
+            f"{breakdown['discard_no_price']:,} Discard No Price (tag)."
+        )
+
         validator_info = {
             "stage": "validator",
             "data": {
@@ -178,15 +188,29 @@ async def process_job(job_id: str):
                 "columns": list(validated_df.columns),
                 "new_products_count": len(new_products_df),
                 "existing_products_count": len(validated_df) - len(new_products_df),
+                "from_discard_count": breakdown["from_discard"],
+                "from_ulm_count": breakdown["from_ulm"],
+                "from_specs_count": breakdown["from_specs"],
+                "discard_no_price_count": breakdown["discard_no_price"],
                 "status": "completed",
                 "completed_at": datetime.now().strftime("%H:%M:%S"),
             }
         }
 
+        # Log new vs existing count
         await update_job_status(
             job_id,
             JobStatus.VALIDATING,
             f"Validation complete: {len(new_products_df)} new product(s) detected for scraping, {len(validated_df) - len(new_products_df)} existing.",
+            level="VALIDATE",
+            stage_output=validator_info
+        )
+
+        # Log entry breakdown (from discard, from ulm, from specs, discard no price)
+        await update_job_status(
+            job_id,
+            JobStatus.VALIDATING,
+            breakdown_msg,
             level="VALIDATE",
             stage_output=validator_info
         )
@@ -196,7 +220,7 @@ async def process_job(job_id: str):
             await update_job_status(
                 job_id,
                 JobStatus.COMPLETED,
-                f"Validation completed! Working file ready ({len(new_products_df)} new products).",
+                f"Validation completed! {breakdown_msg}",
                 output_path=str(validated_file_path),
                 level="COMPLETE",
                 stage_output=validator_info

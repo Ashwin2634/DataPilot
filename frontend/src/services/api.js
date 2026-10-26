@@ -1,14 +1,11 @@
 import axios from 'axios';
 
-const getBaseURL = () => {
-  if (typeof window !== 'undefined' && window.location?.hostname) {
-    return `http://${window.location.hostname}:8000/api/v1`;
-  }
-  return 'http://localhost:8000/api/v1';
-};
+// Use environment variable in production, fallback to localhost in development
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = RAW_API_URL.replace(/\/+$/, '');
 
 const api = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: `${API_URL}/api/v1`,
   timeout: 30000,
 });
 
@@ -41,13 +38,11 @@ export const listJobs = async () => {
 };
 
 export const downloadOutput = (jobId, format = 'xlsx') => {
-  const host = (typeof window !== 'undefined' && window.location?.hostname) || 'localhost';
-  window.open(`http://${host}:8000/api/v1/jobs/${jobId}/download?format=${format}`, '_blank');
+  window.open(`${API_URL}/api/v1/jobs/${jobId}/download?format=${format}`, '_blank');
 };
 
 export const downloadStageOutput = (jobId, stageName, format = 'xlsx') => {
-  const host = (typeof window !== 'undefined' && window.location?.hostname) || 'localhost';
-  window.open(`http://${host}:8000/api/v1/jobs/${jobId}/stages/${stageName}/download?format=${format}`, '_blank');
+  window.open(`${API_URL}/api/v1/jobs/${jobId}/stages/${stageName}/download?format=${format}`, '_blank');
 };
 
 export const getStagePreview = async (jobId, stageName, page = 1, pageSize = 50, search = '') => {

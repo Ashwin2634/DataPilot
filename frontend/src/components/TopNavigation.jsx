@@ -66,15 +66,14 @@ const TopNavigation = ({
         <button
           onClick={onRunPipeline}
           disabled={isRunning || configuredCount === 0}
-          className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all duration-200 border ${
-            isRunning
-              ? 'bg-slate-800/90 border-slate-700 text-indigo-300 opacity-90 cursor-wait'
-              : configuredCount === 0
+          className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all duration-200 border ${isRunning
+            ? 'bg-slate-800/90 border-slate-700 text-indigo-300 opacity-90 cursor-wait'
+            : configuredCount === 0
               ? 'bg-slate-800/80 border-slate-700/70 opacity-60 cursor-not-allowed text-slate-400'
               : targetStage === 'cleaner'
-              ? 'bg-indigo-600 hover:bg-indigo-500 border-indigo-500 text-white shadow-indigo-600/20 active:bg-indigo-700'
-              : 'bg-slate-800/90 hover:bg-slate-700/90 border-slate-700 hover:border-slate-600 text-slate-200 hover:text-white active:bg-slate-800'
-          }`}
+                ? 'bg-indigo-600 hover:bg-indigo-500 border-indigo-500 text-white shadow-indigo-600/20 active:bg-indigo-700'
+                : 'bg-slate-800/90 hover:bg-slate-700/90 border-slate-700 hover:border-slate-600 text-slate-200 hover:text-white active:bg-slate-800'
+            }`}
           title={configuredCount === 0 ? 'Upload at least one file to run' : `Run pipeline in ${targetStage} mode`}
         >
           <i className={`${getRunButtonIcon()} text-sm`}></i>
@@ -108,18 +107,18 @@ const TopNavigation = ({
         >
           <GrokBot
             state={botState}
-            size={22}
+            size={26}
             color="#0b1120"
             eyeColor={
               botState === 'loading'
                 ? '#38bdf8'
                 : botState === 'thinking'
-                ? '#a78bfa'
-                : botState === 'excited' || botState === 'happy'
-                ? '#34d399'
-                : botState === 'curious'
-                ? '#fbbf24'
-                : '#94a3b8'
+                  ? '#a78bfa'
+                  : botState === 'excited' || botState === 'happy'
+                    ? '#34d399'
+                    : botState === 'curious'
+                      ? '#fbbf24'
+                      : '#94a3b8'
             }
             followCursor={true}
             label="Pilot"

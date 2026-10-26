@@ -6,6 +6,7 @@ aiosqlite==0.20.0
 pydantic==2.9.2
 pydantic-settings==2.5.2
 pandas==2.2.3
+numpy>=1.26.0
 openpyxl==3.1.5
 playwright==1.47.0
 beautifulsoup4==4.12.3
