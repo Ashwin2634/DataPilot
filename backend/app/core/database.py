@@ -6,6 +6,7 @@ engine = create_async_engine(
     settings.DATABASE_URL,
     echo=False,
     future=True,
+    connect_args={"ssl": "require"},  # required for Neon
 )
 
 AsyncSessionLocal = async_sessionmaker(

@@ -18,11 +18,13 @@ export const CartoonBot = ({
   const containerRef = useRef(null);
   const [layers, setLayers] = useState(null);
   const [gaze, setGaze] = useState({ x: 0, y: 0 });
+  const [scanGaze, setScanGaze] = useState({ x: 0, y: 0 });
   const [blinking, setBlinking] = useState(false);
   const blinkTimeout = useRef();
 
-  const isVibing =
-    state === 'vibing' || state === 'loading' || state === 'excited';
+  const isScanning = state === 'loading' || state === 'thinking';
+  const isVibing = state === 'vibing' || state === 'excited';
+  const isExcited = state === 'excited';
 
   useEffect(() => {
     const img = new Image();
@@ -79,24 +81,18 @@ export const CartoonBot = ({
       }
 
       // STEP 2: SURGICALLY REMOVE ONLY THE EYEBALLS FROM THE ORIGINAL IMAGE
-      // Finds the horizontal eyelid line first, then replaces ONLY the dark eyeball
-      // pixels directly below that line with the exact eye-white color (#eefbfb).
       const removeEyeballFromImage = (minX, maxX) => {
         for (let x = Math.floor(w * minX); x <= Math.ceil(w * maxX); x++) {
-          // 1. Locate the dark horizontal eyelid line in this vertical column
           let lidBottomY = Math.floor(h * 0.478);
           for (let y = Math.floor(h * 0.455); y <= Math.floor(h * 0.495); y++) {
             const idx = (y * w + x) * 4;
-            // Eyelid line is dark, while the upper lid above it is medium grey-brown
             if (data[idx] < 95 && data[idx + 1] < 95) {
               lidBottomY = y;
             }
           }
 
-          // 2. Erase any dark eyeball pixels below the eyelid line down to the middle of the eye
           for (let y = lidBottomY - 2; y <= Math.floor(h * 0.545); y++) {
             const idx = (y * w + x) * 4;
-            // Keep a crisp 4px eyelid line at the top, and turn the eyeball below it pure sclera white
             if (y > lidBottomY + 1 && data[idx] < 225) {
               data[idx] = 238;     // R (#eefbfb - exact white of Calm's eyes)
               data[idx + 1] = 251; // G
@@ -187,10 +183,38 @@ export const CartoonBot = ({
     };
   }, [imageUrl]);
 
+  // Eye Scanning & Pondering routine during 'loading' and 'thinking'
+  useEffect(() => {
+    if (!isScanning) {
+      setScanGaze({ x: 0, y: 0 });
+      return;
+    }
+
+    const sequence = [
+      { x: -0.75, y: 0.25 }, // Scan left
+      { x: 0.15, y: 0.25 },  // Scan middle
+      { x: 0.75, y: 0.25 },  // Scan right
+      { x: -0.6, y: 0.45 },  // Next line left
+      { x: 0.55, y: 0.45 },  // Next line right
+      { x: 0.65, y: -0.25 }, // Look up-right (pondering)
+      { x: -0.5, y: -0.25 }, // Look up-left (pondering)
+    ];
+
+    let step = 0;
+    setScanGaze(sequence[0]);
+
+    const interval = setInterval(() => {
+      step = (step + 1) % sequence.length;
+      setScanGaze(sequence[step]);
+    }, 620);
+
+    return () => clearInterval(interval);
+  }, [isScanning]);
+
   // Cursor tracking for smooth eyeball movement
   const handlePointerMove = useCallback(
     (e) => {
-      if (!followCursor || !containerRef.current) return;
+      if (!followCursor || isScanning || !containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
@@ -202,17 +226,17 @@ export const CartoonBot = ({
         y: Math.max(-1, Math.min(1, dy)),
       });
     },
-    [followCursor]
+    [followCursor, isScanning]
   );
 
   useEffect(() => {
-    if (!followCursor) {
+    if (!followCursor || isScanning) {
       setGaze({ x: 0, y: 0 });
       return;
     }
     window.addEventListener('pointermove', handlePointerMove);
     return () => window.removeEventListener('pointermove', handlePointerMove);
-  }, [followCursor, handlePointerMove]);
+  }, [followCursor, isScanning, handlePointerMove]);
 
   // Natural Blinking Loop
   useEffect(() => {
@@ -233,8 +257,9 @@ export const CartoonBot = ({
   }, []);
 
   // Eyeball movement range inside the natural eye whites
-  const pupilOffsetX = gaze.x * 32;
-  const pupilOffsetY = Math.max(-6, Math.min(28, gaze.y * 20));
+  const activeGaze = isScanning ? scanGaze : gaze;
+  const pupilOffsetX = activeGaze.x * 32;
+  const pupilOffsetY = Math.max(-6, Math.min(28, activeGaze.y * 20));
 
   return (
     <div
@@ -297,7 +322,7 @@ export const CartoonBot = ({
               }}
             />
 
-            {/* 3. ONLY THE FLOATING CODED EYEBALLS (No overdrawn lines or white boxes!) */}
+            {/* 3. FLOATING CODED EYEBALLS & SINGLE EXCITED SHIMMER */}
             <svg
               viewBox="0 0 1000 1124"
               width="100%"
@@ -316,6 +341,11 @@ export const CartoonBot = ({
                 <clipPath id="right-eye-natural-clip">
                   <path d="M 514 534 L 762 534 C 765 612 715 660 638 660 C 560 660 510 615 514 534 Z" />
                 </clipPath>
+                {/* Clip boundary for the glasses lens shimmer */}
+                <clipPath id="goggles-lens-clip">
+                  <path d="M 185 430 Q 340 410 495 430 L 495 660 Q 340 695 190 620 Z" />
+                  <path d="M 510 430 Q 665 410 820 430 L 815 620 Q 665 695 510 660 Z" />
+                </clipPath>
               </defs>
 
               {/* Floating Coded Eyeballs Only */}
@@ -327,6 +357,11 @@ export const CartoonBot = ({
                       cy={545 + pupilOffsetY}
                       r="18.5"
                       fill="#1d2c36"
+                      style={{
+                        transition: isScanning
+                          ? 'cx 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), cy 0.32s ease'
+                          : 'none',
+                      }}
                     />
                   </g>
                   <g clipPath="url(#right-eye-natural-clip)">
@@ -335,9 +370,31 @@ export const CartoonBot = ({
                       cy={545 + pupilOffsetY}
                       r="18.5"
                       fill="#1d2c36"
+                      style={{
+                        transition: isScanning
+                          ? 'cx 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), cy 0.32s ease'
+                          : 'none',
+                      }}
                     />
                   </g>
                 </>
+              )}
+
+              {/* Glass Lens Shimmer - Runs ONLY ONCE when state === 'excited' */}
+              {isExcited && (
+                <g clipPath="url(#goggles-lens-clip)">
+                  <rect
+                    x="-250"
+                    y="380"
+                    width="110"
+                    height="360"
+                    fill="#ffffff"
+                    opacity="0.28"
+                    style={{
+                      animation: 'calm-glasses-shimmer-once 0.9s ease-out 1 forwards',
+                    }}
+                  />
+                </g>
               )}
 
               {/* Blinking Eyelid (Only appears for 140ms during a blink) */}
@@ -362,7 +419,7 @@ export const CartoonBot = ({
         </>
       )}
 
-      {/* Smooth Rhythmic Head Nod */}
+      {/* Smooth Rhythmic Head Nod & Single Excited Shimmer */}
       <style>{`
         @keyframes bure-din-head-nod {
           0% {
@@ -370,6 +427,15 @@ export const CartoonBot = ({
           }
           100% {
             transform: translateY(4.5%);
+          }
+        }
+
+        @keyframes calm-glasses-shimmer-once {
+          0% {
+            transform: translateX(0px) skewX(-24deg);
+          }
+          100% {
+            transform: translateX(1350px) skewX(-24deg);
           }
         }
       `}</style>
