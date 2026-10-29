@@ -1,7 +1,13 @@
 import React, { useState, useRef } from 'react';
 import WorkingFileModal from './WorkingFileModal';
+import DownloadRenameModal from './DownloadRenameModal';
 import { downloadStageOutput } from '../services/api';
 import GrokBot from './GrokBot';
+import scraperLogo from '../assets/scraper-logo.png';
+import ingestLogo from '../assets/ingest-logo.png';
+
+
+
 
 const formatFileSize = (bytes) => {
   if (!bytes) return '0 B';
@@ -51,6 +57,31 @@ const WorkflowCanvas = ({
   const closePreview = () => {
     setPreviewModal((prev) => ({ ...prev, isOpen: false }));
   };
+
+  const [downloadModal, setDownloadModal] = useState({
+    isOpen: false,
+    stageName: null,
+    format: 'xlsx',
+    originalFileName: '',
+  });
+
+  const openDownloadModal = (stageName, format = 'xlsx', originalFileName = '') => {
+    if (!jobId) {
+      alert('No active or completed job available for download.');
+      return;
+    }
+    setDownloadModal({
+      isOpen: true,
+      stageName,
+      format,
+      originalFileName: originalFileName || '',
+    });
+  };
+
+  const closeDownloadModal = () => {
+    setDownloadModal((prev) => ({ ...prev, isOpen: false }));
+  };
+
 
   const cleanerOutput = jobData?.stage_outputs?.cleaner;
   const validatorOutput = jobData?.stage_outputs?.validator;
@@ -356,9 +387,18 @@ const WorkflowCanvas = ({
             <div className="bg-white rounded-lg border border-slate-200 hover:border-indigo-300 shadow-card pt-7 px-6 pb-6 transition-all">
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3.5">
-                  <div className="w-11 h-11 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-xs shrink-0">
-                    <i className="ph-duotone ph-folder-notch-open text-2xl"></i>
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center shadow-xs shrink-0 overflow-hidden p-0.5 transition-all ${
+                    feedsLoadedCount > 0
+                      ? 'bg-emerald-50 border-2 border-emerald-400/80 shadow-emerald-500/10'
+                      : 'bg-white border border-slate-200 shadow-xs'
+                  }`}>
+                    <img
+                      src={ingestLogo}
+                      alt="Ingest Data Sources"
+                      className="w-full h-full object-contain rounded-md"
+                    />
                   </div>
+
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm font-bold text-slate-900">1. Ingest Data Sources</h3>
@@ -611,7 +651,7 @@ const WorkflowCanvas = ({
                     </button>
                     <button
                       type="button"
-                      onClick={() => downloadStageOutput(jobId, 'cleaner', 'xlsx')}
+                      onClick={() => openDownloadModal('cleaner', 'xlsx', cleanerOutput?.file_name)}
                       className="flex-1 flex items-center justify-center gap-1 px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-2xs transition-all cursor-pointer"
                       title="Download Cleaned Excel"
                     >
@@ -620,13 +660,14 @@ const WorkflowCanvas = ({
                     </button>
                     <button
                       type="button"
-                      onClick={() => downloadStageOutput(jobId, 'cleaner', 'csv')}
+                      onClick={() => openDownloadModal('cleaner', 'csv', cleanerOutput?.file_name)}
                       className="flex-1 flex items-center justify-center gap-1 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-white rounded-lg text-xs font-semibold shadow-2xs transition-all cursor-pointer"
                       title="Download Cleaned CSV"
                     >
                       <i className="ph-bold ph-file-csv text-sm"></i>
                       <span>.CSV</span>
                     </button>
+
                   </div>
                 </div>
               )}
@@ -742,7 +783,7 @@ const WorkflowCanvas = ({
                     </button>
                     <button
                       type="button"
-                      onClick={() => downloadStageOutput(jobId, 'validator', 'xlsx')}
+                      onClick={() => openDownloadModal('validator', 'xlsx', validatorOutput?.file_name)}
                       className="flex-1 flex items-center justify-center gap-1 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-2xs transition-all cursor-pointer"
                       title="Download Validated Excel"
                     >
@@ -751,13 +792,14 @@ const WorkflowCanvas = ({
                     </button>
                     <button
                       type="button"
-                      onClick={() => downloadStageOutput(jobId, 'validator', 'csv')}
+                      onClick={() => openDownloadModal('validator', 'csv', validatorOutput?.file_name)}
                       className="flex-1 flex items-center justify-center gap-1 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-white rounded-lg text-xs font-semibold shadow-2xs transition-all cursor-pointer"
                       title="Download Validated CSV"
                     >
                       <i className="ph-bold ph-file-csv text-sm"></i>
                       <span>.CSV</span>
                     </button>
+
                   </div>
                 </div>
               )}
@@ -806,15 +848,20 @@ const WorkflowCanvas = ({
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3.5">
                   <div
-                    className={`w-12 h-12 rounded-lg flex items-center justify-center shadow-md shrink-0 ${step4Done
-                      ? 'bg-emerald-600 text-white shadow-emerald-500/20'
+                    className={`w-12 h-12 rounded-lg flex items-center justify-center shadow-md shrink-0 overflow-hidden p-1 transition-all ${step4Done
+                      ? 'bg-emerald-50 border-2 border-emerald-400 shadow-emerald-500/20'
                       : step4Active
-                        ? 'bg-indigo-600 text-white shadow-indigo-500/30'
-                        : 'bg-slate-100 text-slate-500 border border-slate-200'
+                        ? 'bg-indigo-50 border-2 border-indigo-400 shadow-indigo-500/30'
+                        : 'bg-white border border-slate-200 shadow-xs'
                       }`}
                   >
-                    <i className="ph-duotone ph-spider text-2xl"></i>
+                    <img
+                      src={scraperLogo}
+                      alt="Playwright Web Scraper"
+                      className="w-full h-full object-contain rounded-md"
+                    />
                   </div>
+
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm font-bold text-slate-900">4. Playwright Headless Web Scraper</h3>
@@ -956,7 +1003,7 @@ const WorkflowCanvas = ({
                     </button>
                     <button
                       type="button"
-                      onClick={() => downloadStageOutput(jobId, 'scraper', 'xlsx')}
+                      onClick={() => openDownloadModal('scraper', 'xlsx', scraperOutput?.file_name)}
                       className="flex-1 flex items-center justify-center gap-1 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-2xs transition-all cursor-pointer"
                       title="Download Scraped Excel"
                     >
@@ -965,13 +1012,14 @@ const WorkflowCanvas = ({
                     </button>
                     <button
                       type="button"
-                      onClick={() => downloadStageOutput(jobId, 'scraper', 'csv')}
+                      onClick={() => openDownloadModal('scraper', 'csv', scraperOutput?.file_name)}
                       className="flex-1 flex items-center justify-center gap-1 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-white rounded-lg text-xs font-semibold shadow-2xs transition-all cursor-pointer"
                       title="Download Scraped CSV"
                     >
                       <i className="ph-bold ph-file-csv text-sm"></i>
                       <span>.CSV</span>
                     </button>
+
                   </div>
                 </div>
               )}
@@ -1041,7 +1089,7 @@ const WorkflowCanvas = ({
 
                   <div className="flex-1 flex items-center gap-1.5">
                     <button
-                      onClick={() => onDownload?.('xlsx')}
+                      onClick={() => openDownloadModal('exporter', 'xlsx', exporterOutput?.file_name)}
                       disabled={!step5Ready || !exporterOutput}
                       className={`flex-1 flex items-center justify-center space-x-1.5 py-3 px-3 rounded-xl text-xs font-semibold transition-all ${step5Ready && exporterOutput
                         ? 'bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white shadow-md shadow-emerald-700/20 cursor-pointer'
@@ -1053,7 +1101,7 @@ const WorkflowCanvas = ({
                       <span>.XLSX</span>
                     </button>
                     <button
-                      onClick={() => onDownload?.('csv')}
+                      onClick={() => openDownloadModal('exporter', 'csv', exporterOutput?.file_name)}
                       disabled={!step5Ready || !exporterOutput}
                       className={`flex-1 flex items-center justify-center space-x-1.5 py-3 px-3 rounded-xl text-xs font-semibold transition-all ${step5Ready && exporterOutput
                         ? 'bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-white shadow-md cursor-pointer'
@@ -1092,8 +1140,20 @@ const WorkflowCanvas = ({
         initialFileName={previewModal.fileName}
         initialRowCount={previewModal.rowCount}
         initialColCount={previewModal.colCount}
+        onTriggerDownload={(stName, fmt, fName) => openDownloadModal(stName, fmt, fName)}
+      />
+
+      {/* Custom Download & Rename Modal */}
+      <DownloadRenameModal
+        isOpen={downloadModal.isOpen}
+        onClose={closeDownloadModal}
+        jobId={jobId}
+        stageName={downloadModal.stageName}
+        format={downloadModal.format}
+        originalFileName={downloadModal.originalFileName}
       />
     </main>
+
   );
 };
 

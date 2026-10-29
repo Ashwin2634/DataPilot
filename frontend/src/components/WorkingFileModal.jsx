@@ -23,7 +23,9 @@ export default function WorkingFileModal({
   initialFileName,
   initialRowCount,
   initialColCount,
+  onTriggerDownload,
 }) {
+
   const [data, setData] = useState([]);
   const [columns, setColumns] = useState([]);
   const [fileName, setFileName] = useState(initialFileName || '');
@@ -116,9 +118,14 @@ export default function WorkingFileModal({
 
   const handleDownload = (format = 'xlsx') => {
     if (jobId && stageName) {
-      downloadStageOutput(jobId, stageName, format);
+      if (onTriggerDownload) {
+        onTriggerDownload(stageName, format, fileName);
+      } else {
+        downloadStageOutput(jobId, stageName, format);
+      }
     }
   };
+
 
   if (!isOpen) return null;
 

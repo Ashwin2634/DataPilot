@@ -37,6 +37,40 @@ export const listJobs = async () => {
   return response.data;
 };
 
+export const getDownloadUrl = (jobId, stageName = null, format = 'xlsx') => {
+  const cleanFormat = (format || 'xlsx').toLowerCase().replace('.', '');
+  if (stageName && stageName !== 'exporter' && stageName !== 'final') {
+    return `${API_URL}/api/v1/jobs/${jobId}/stages/${stageName}/download?format=${cleanFormat}`;
+  }
+  return `${API_URL}/api/v1/jobs/${jobId}/download?format=${cleanFormat}`;
+};
+
+export const downloadFileBlob = async (downloadUrl, finalFileName) => {
+  const response = await fetch(downloadUrl);
+  if (!response.ok) {
+    let errorDetail = `HTTP ${response.status} ${response.statusText}`;
+    try {
+      const errJson = await response.json();
+      if (errJson?.detail) errorDetail = errJson.detail;
+    } catch (_) {}
+    throw new Error(errorDetail);
+  }
+  const blob = await response.blob();
+  const objectUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = objectUrl;
+  a.download = finalFileName;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    if (a.parentNode) {
+      document.body.removeChild(a);
+    }
+    window.URL.revokeObjectURL(objectUrl);
+  }, 250);
+};
+
 export const downloadOutput = (jobId, format = 'xlsx') => {
   window.open(`${API_URL}/api/v1/jobs/${jobId}/download?format=${format}`, '_blank');
 };
@@ -44,6 +78,7 @@ export const downloadOutput = (jobId, format = 'xlsx') => {
 export const downloadStageOutput = (jobId, stageName, format = 'xlsx') => {
   window.open(`${API_URL}/api/v1/jobs/${jobId}/stages/${stageName}/download?format=${format}`, '_blank');
 };
+
 
 export const getStagePreview = async (jobId, stageName, page = 1, pageSize = 50, search = '') => {
   const params = new URLSearchParams({

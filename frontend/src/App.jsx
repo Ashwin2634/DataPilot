@@ -28,7 +28,7 @@ function App() {
   const [pastRuns, setPastRuns] = useState([]);
   const [selectedRunId, setSelectedRunId] = useState(null);
   const [logs, setLogs] = useState(DEFAULT_READY_LOGS);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [botState, setBotState] = useState('idle');
 
   const pollingRef = useRef(null);

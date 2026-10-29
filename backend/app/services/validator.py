@@ -664,43 +664,27 @@ async def validate_and_find_new_products(
 
 
     # ------------------------------------------------------------------
-    # 5. Detect URL column
+    # 5. Identify NEW products based on empty Tag column
     # ------------------------------------------------------------------
-    url_col = _find_column(
-        df,
-        ["url", "product_url", "link", "product_link", "supplier_url", "item_url"],
+    # After all enrichments (ULM → Specs → Specs Brand/Product → Discard),
+    # any row that still has an empty / blank Tag is considered a NEW product.
+
+    tag_col = _find_column(df, ["tag", "tags"])
+
+    if tag_col is None:
+        # Safety: if somehow Tag column doesn't exist, create it
+        df["tag"] = None
+        tag_col = "tag"
+
+    # Treat NaN, None, empty string, "nan", "none" as empty
+    empty_tag_mask = (
+        df[tag_col].isna()
+        | (df[tag_col].astype(str).str.strip() == "")
+        | (df[tag_col].astype(str).str.strip().str.lower().isin(["nan", "none", "null"]))
     )
 
-    if url_col is None:
-        # last resort – any column containing "url" or "link"
-        for col in df.columns:
-            if "url" in col or "link" in col:
-                url_col = col
-                break
-
-    if url_col is None:
-        raise ValueError("No URL column found in cleaned data")
-
-    # ------------------------------------------------------------------
-    # 5. Collect known URLs from master files
-    # ------------------------------------------------------------------
-    known_urls: set = set()
-
-    # Specs Master – normal header
-    known_urls |= _extract_urls(_load_file(specs_file_path, header=0))
-
-    # ULM – has blank first row → use header=1
-    known_urls |= _extract_urls(_load_file(ulm_file_path, header=1))
-
-    # Last Working file – normal header
-    known_urls |= _extract_urls(_load_file(last_working_file_path, header=0))
-
-    logger.info(f"Total known URLs collected: {len(known_urls)}")
-
-    # ------------------------------------------------------------------
-    # 6. Mark status
-    # ------------------------------------------------------------------
-    df["is_new_product"] = ~df[url_col].astype(str).str.strip().isin(known_urls)
+    # Update is_new_product column
+    df["is_new_product"] = empty_tag_mask
     df["match_status"] = df["is_new_product"].map({True: "NEW", False: "EXISTING"})
 
     # Validation check columns belong strictly to validator stage
@@ -711,6 +695,7 @@ async def validate_and_find_new_products(
     if "cat check" not in df.columns:
         df["cat check"] = ""
 
+    # New products = rows with empty Tag
     new_products_df = df[df["is_new_product"]].copy()
 
     breakdown = compute_validation_breakdown(df)

@@ -1,0 +1,17 @@
+dataimpulse - 
+email - ashwintm2027@gmail.com 
+
+
+
+
+
+
+
+
+
+
+
+starting command - 
+pip install -r requirements.txt
+pip install -r requirements-scraper.txt
+patchright install chromium

@@ -15,8 +15,9 @@ from app.models.job import Job, JobStatus
 # Import the pipelines
 from app.services.cleaner import clean_data
 from app.services.validator import validate_and_find_new_products, compute_validation_breakdown
-from app.services.scraper import scrape_new_products
+from app.services.scraper import scrape_blank_tag_products, scrape_new_products
 from app.services.exporter import generate_final_excel
+
 
 
 async def update_job_status(
@@ -228,21 +229,41 @@ async def process_job(job_id: str):
             return
 
         # ============================================
-        # STAGE 3: SCRAPING NEW PRODUCTS
+        # STAGE 3: SCRAPING FOR BLANK TAG ROWS
         # ============================================
+        # 1. Search validated_df for blank tag column rows
+        tag_col = None
+        for candidate in ["Tag", "tag", "Tags", "tags"]:
+            if candidate in validated_df.columns:
+                tag_col = candidate
+                break
+        if not tag_col:
+            for col in validated_df.columns:
+                if "tag" in str(col).lower():
+                    tag_col = col
+                    break
+
+        blank_tag_count = 0
+        if tag_col:
+            blank_mask = (
+                validated_df[tag_col].isna()
+                | (validated_df[tag_col].astype(str).str.strip() == "")
+                | (validated_df[tag_col].astype(str).str.strip().str.lower().isin(["nan", "none", "null"]))
+            )
+            blank_tag_count = int(blank_mask.sum())
+
         await update_job_status(
             job_id, 
             JobStatus.SCRAPING, 
-            f"Scraping {len(new_products_df)} new products with Playwright...",
+            f"Scanning validated data for blank Tag column rows... Detected {blank_tag_count:,} row(s) requiring web scraping.",
             level="PLAYWRIGHT"
         )
 
         async def log_scrape(msg: str):
             await update_job_status(job_id, JobStatus.SCRAPING, msg, level="PLAYWRIGHT")
 
-        final_df = await scrape_new_products(
+        final_df, scrape_stats = await scrape_blank_tag_products(
             validated_df=validated_df,
-            new_products_df=new_products_df,
             log_callback=log_scrape
         )
 
@@ -259,21 +280,34 @@ async def process_job(job_id: str):
                 "row_count": len(final_df),
                 "col_count": len(final_df.columns),
                 "columns": list(final_df.columns),
+                "blank_tag_count": blank_tag_count,
+                "scraped_count": scrape_stats.get("total", 0),
+                "success_count": scrape_stats.get("success", 0),
+                "failed_count": scrape_stats.get("failed", 0),
                 "status": "completed",
                 "completed_at": datetime.now().strftime("%H:%M:%S"),
             }
         }
 
+        await update_job_status(
+            job_id,
+            JobStatus.SCRAPING,
+            f"Scraper completed: {scrape_stats.get('success', 0)}/{scrape_stats.get('total', 0)} succeeded, {scrape_stats.get('failed', 0)} failed. Saved {scraped_file_path.name}.",
+            level="PLAYWRIGHT",
+            stage_output=scraper_info
+        )
+
         if target_stage in ["scraper", "scraping"]:
             await update_job_status(
                 job_id,
                 JobStatus.COMPLETED,
-                f"Scraping completed! Working file ready.",
+                f"Scraping completed! Working file ready ({len(final_df):,} rows).",
                 output_path=str(scraped_file_path),
                 level="COMPLETE",
                 stage_output=scraper_info
             )
             return
+
 
         # ============================================
         # STAGE 4: GENERATE FINAL OUTPUT
